@@ -1,0 +1,31 @@
+%{
+#include<stdio.h>
+#include<stdlib.h>
+%}
+%token INTEGER
+%%
+line:E'\n' { printf("yacc line($1) : %d\n",$1); }
+E:E'+'T { $$=$1 + $3; }|E'-'T { $$=$1 - $3;  }|T { $$=$1; } ;
+T:T'*'F { $$=$1 * $3;  }|T'/'F { $$=$1 / $3; }|F { $$=$1;} ;
+F:'('E')' { $$=$1;}|INTEGER ;
+%%
+int main()
+{
+yyparse();
+return 0;
+}
+
+
+%{
+#include<stdio.h>
+#include<stdlib.h>
+#include "y.tab.h"
+%}
+%%
+[\t]+ ;
+[0-9]+ { yylval=atoi(yytext); printf("lex(integer) : %d\n",INTEGER); return INTEGER; }
+[-+*/] { printf("lex(+-*/) : %s\n",yytext); return *yytext; }
+"(" { printf("lex( : %s\n",yytext); return *yytext; }
+")" { printf("lex) : %s\n",yytext); return *yytext; }
+\n { printf("lex(newline) : %s\n",yytext); return *yytext; }
+%%
